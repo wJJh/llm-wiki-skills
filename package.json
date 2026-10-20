@@ -1,6 +1,6 @@
 {
   "name": "dsh-llm-wiki-skills",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "四个可组合的 Agent Skills：cf-browser-render（网页转 Markdown）、github-stars-sync（Stars 导出）、github-stars-version-tracker（版本追踪）、auto-github-star（手动 Star）。零第三方 Python 依赖，支持 Claude Code 与 DSH。",
   "type": "module",
   "main": "index.js",

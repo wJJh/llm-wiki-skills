@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "四个可组合的 Agent Skills：网页转 Markdown、GitHub Stars 导出、版本追踪、手动 Star。",
-    "version": "1.0.0"
+    "version": "1.0.1"
   },
   "plugins": [
     {
