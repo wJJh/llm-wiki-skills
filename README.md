@@ -1,19 +1,193 @@
 # LLM Wiki Skills
 
-**四个可组合的 Agent Skills：抓网页、收 Star、导 Stars、追版本。**
+> **把任意网页变成 AI 能读的 Markdown，顺手管理你的 GitHub Stars。**
+>
+> 四个可组合的 Agent Skills，支持 Claude Code 与 DeepSeek Harness（DSH），
+> **零第三方 Python 依赖**；可以只装一个，也可以四个联动。
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8A2BE2.svg)
 ![DSH](https://img.shields.io/badge/DSH-DeepSeek%20Harness-1f6feb.svg)
 
-全部技能**零第三方 Python 依赖**，支持 Claude Code 与 DeepSeek Harness（DSH），
-也支持**只安装其中一个**。环境变量放在本地 `.env`，不需要配置全局环境变量。
-
 作者：小妖刀 · GitHub [@wJJh](https://github.com/wJJh)
 
 [English](README.en.md) · [许可证](LICENSE) · [环境变量模板](.env.example) ·
 [凭据获取指南](docs/credentials/README.md)
+
+---
+
+## 30 秒上手
+
+前置：Python 3.10+，一个 Cloudflare 账号。
+
+```bash
+git clone https://github.com/wJJh/llm-wiki-skills.git
+cd llm-wiki-skills
+cp .env.example .env
+# 编辑 .env：
+#   CF_BROWSER_RENDERING_TOKEN=...
+#   CF_ACCOUNT_ID=...
+python skills/cf-browser-render/scripts/fetch_markdown.py \
+  "https://example.com" -o article.md
+```
+
+> PowerShell 用户：把行尾的 `\` 换成反引号 `` ` ``，或把命令写成一行。
+>
+> **国内网络提示**：访问 `api.cloudflare.com` 通常需要代理 IP；先在 `.env` 设置
+> `HTTPS_PROXY`，或加 `--proxy http://127.0.0.1:7890`，否则可能超时。
+
+Token 获取：Cloudflare Dashboard → My Profile → API Tokens，
+权限选 **Account > Browser Rendering > Edit**。完整步骤见
+[Cloudflare 凭据指南](docs/credentials/cloudflare-browser-rendering.md)。
+
+输出示例：
+
+```markdown
+# 文章标题
+
+正文内容...
+
+## 小标题
+
+- 列表项 1
+- 列表项 2
+```
+
+---
+
+## 为什么值得
+
+| 你能得到什么 | 说明 |
+|---|---|
+| **网页 → Markdown** | 公众号文章、GitHub 仓库主页、技术博客、官方文档、SPA 都能抓 |
+| **四个技能可组合** | 网页研究 → 手动 Star → 导出 Stars → 版本追踪 → 报告 |
+| **零第三方依赖** | Python 3.10+ 标准库即可，不需要 `pip install` |
+| **可以只装一个** | `cf-browser-render` 是最亮的入口，单独安装就能用 |
+| **本地 `.env`** | 不需要配置全局环境变量；凭据只留在本地 |
+| **Claude Code + DSH** | 同一套 `SKILL.md`，两个 Agent 都能加载 |
+
+> **只想要网页转 Markdown？** 只装 `cf-browser-render` 就够了，不需要另外三个技能。
+
+---
+
+## 目录
+
+- [30 秒上手](#30-秒上手)
+- [为什么单独装 cf-browser-render](#为什么单独装-cf-browser-render)
+- [四个技能](#四个技能)
+- [四技能如何联动](#四技能如何联动)
+- [使用前提](#使用前提)
+- [安装](#安装)
+- [环境变量与凭据](#环境变量与凭据)
+- [使用示例](#使用示例)
+- [目录结构](#目录结构)
+- [安全与隐私](#安全与隐私)
+- [常见问题](#常见问题)
+- [开发与校验](#开发与校验)
+- [许可证](#许可证)
+
+---
+
+## 为什么单独装 cf-browser-render
+
+**它不是知识库专属工具。** 凡是“把网页变成 AI 能读的文本”的场景都能用：
+
+| 场景 | 能做什么 |
+|---|---|
+| **微信公众号文章** | 把公开可访问的文章转成干净 Markdown，方便总结、归档、二次创作 |
+| **GitHub 仓库主页** | README、Release、文档页转 Markdown，方便让 AI 对比仓库、写调研报告 |
+| **技术博客 / 官方文档** | 保留标题层级、列表、表格、代码块和链接 |
+| **SPA / JavaScript 页面** | 真实浏览器渲染，不是简单 HTTP 抓取 |
+| **批量剪藏** | 多个 URL 串行抓取，统一保存成 `.md` |
+| **AI 工作流** | 输出可直接喂给 RAG、知识库、代码助手、摘要/翻译流程 |
+
+### 为什么 Markdown 对 AI 友好
+
+- **结构保留**：标题、列表、表格、代码块、引用和链接都在
+- **噪声更少**：比 HTML 少掉大量标签、脚本、样式和内联属性，更省 context
+- **易切分**：按标题层级就能做 chunk，适合 RAG 和长文总结
+- **易溯源**：链接和代码块保留，方便回查原文
+- **易存储**：纯文本，Git、Obsidian、任何编辑器都能直接读
+
+### 按自己的场景微调
+
+四个技能都是 MIT，可以直接改，不用重新造轮子：
+
+- **触发词**：编辑 `skills/<name>/SKILL.md` 的 `description` / `whenToUse`
+- **输出方式**：`-o article.md` 保存单文件；多个 URL 串行；`--timeout` 调超时
+- **API 端点**：把 `/browser-rendering/markdown` 换成 `/screenshot`、`/pdf`、
+  `/content`、`/scrape` 等（进阶，需要改 `fetch_markdown.py`）
+- **后处理**：加 frontmatter、按网页标题生成文件名、清理导航栏、批量清单
+- **Stars 技能**：改 `CATEGORY_KEYWORDS`、排除词、批次大小、报告模板
+- **环境隔离**：用不同 `.env` + `--env-file` 区分工作/个人/测试场景
+
+> 不想改代码也可以：`--env-file` 指向不同配置，或在 `.env` 里切换代理和输出目录。
+> 详见 [cf-browser-render 技能说明](skills/cf-browser-render/README.md) 和
+> [Cloudflare 凭据指南](docs/credentials/cloudflare-browser-rendering.md)。
+
+---
+
+## 四个技能
+
+| 技能 | 一句话 | 单独安装 |
+|---|---|---|
+| **cf-browser-render** ⭐ | 用真实浏览器把任意网页渲染成 Markdown，公众号/SPA/文档/GitHub 都能抓 | [插件安装](#安装) 或 [手动](skills/cf-browser-render/README.md#安装) |
+| **github-stars-sync** | 分页导出 GitHub Stars，生成 JSON / Markdown / 语言统计 | [README](skills/github-stars-sync/README.md) |
+| **github-stars-version-tracker** | 批量扫描 Star 仓库的新版本，分类过滤并生成报告 | [README](skills/github-stars-version-tracker/README.md) |
+| **auto-github-star** | 只在明确要求时手动 Star 仓库 | [README](skills/auto-github-star/README.md) |
+
+**亮点 `cf-browser-render`**：零依赖、一条命令、Windows 自动 UTF-8，适合公众号文章、
+JavaScript 渲染的 SPA、文档站和 GitHub 页面。
+
+---
+
+## 四技能如何联动
+
+四个技能不是四个孤岛，而是一条完整流水线：
+
+1. **cf-browser-render** 先把网页/仓库/Release 抓成 Markdown，用于研究和判断。
+2. **auto-github-star** 在你明确要求时把值得收藏的仓库加入 Stars（不会自动触发）。
+3. **github-stars-sync** 把 Stars 全量导出成 `output/github_stars.json`。
+4. **github-stars-version-tracker** 读取快照、分批扫描 Releases，生成
+   `output/combined.json` 和 `output/stars_report.md`。
+5. 遇到只有 300 字摘要的 Release，再用 **cf-browser-render** 抓全文补全。
+
+```mermaid
+flowchart LR
+    A[发现仓库 / 网页研究] --> CF[cf-browser-render]
+    A -->|用户明确要求| AS[auto-github-star]
+    AS --> GH[(GitHub Stars)]
+    GH --> SYNC[github-stars-sync]
+    SYNC -->|output/github_stars.json| TRACK[github-stars-version-tracker]
+    TRACK -->|GitHub Releases API| API[(Releases)]
+    API --> TRACK
+    TRACK -->|output/combined.json| REPORT[render_report.py]
+    REPORT -->|output/stars_report.md| OUT[报告 / 可选归档]
+    TRACK -.300 字摘要不够时.-> CF
+    CF -.抓 release 全文 / README.-> OUT
+```
+
+### 数据契约
+
+| 文件 | 生产者 | 消费者 | 内容 |
+|---|---|---|---|
+| `output/github_stars.json` | `github-stars-sync` / tracker 的 fetch | `github-stars-version-tracker` | Stars 全量列表，含 `full_name`、`stars`、`language`、`starred_at` |
+| `output/github_stars_latest.json` | `scan_all.py` | `check_versions.py` | 上次扫描的全部仓库最新 tag/date |
+| `output/combined.json` | `scan_all.py` | `render_report.py` / 人工 | 本次更新、分类、错误统计、是否完整 |
+| `output/stars_report.md` | `render_report.py` | 人 / 笔记库 | 按类别分组的 Markdown 报告 |
+
+### 组合场景
+
+| 组合 | 适合 |
+|---|---|
+| 只装 `cf-browser-render` | 纯网页研究、公众号/SPA 剪藏、零依赖 |
+| `cf-browser-render` + `github-stars-sync` | 研究仓库并建立个人 Stars 画像 |
+| `github-stars-sync` + `github-stars-version-tracker` | 只做版本监控 |
+| 四个全装 | 发现 → 手动 Star → 导出 → 版本扫描 → 抓全文深挖 |
+
+> `auto-github-star` **只手动触发**：不会因为消息里出现链接就自动 Star。
+> `cf-browser-render` 既可独立使用，也可为版本报告的 300 字 Release 摘要补全全文。
 
 ---
 
@@ -108,138 +282,6 @@ py --version         # Windows 的 py 启动器
 
 > 如果只是想把网页转成 Markdown，不装 Agent 也能直接运行
 > `skills/cf-browser-render/scripts/fetch_markdown.py`。
-
----
-
-## 四个技能
-
-| 技能 | 一句话 | 单独安装 |
-|---|---|---|
-| **cf-browser-render** ⭐ | 用真实浏览器把任意网页渲染成 Markdown，公众号/SPA/文档/GitHub 都能抓 | [插件安装](#安装) 或 [手动](skills/cf-browser-render/README.md#安装) |
-| **github-stars-sync** | 分页导出 GitHub Stars，生成 JSON / Markdown / 语言统计 | [README](skills/github-stars-sync/README.md) |
-| **github-stars-version-tracker** | 批量扫描 Star 仓库的新版本，分类过滤并生成报告 | [README](skills/github-stars-version-tracker/README.md) |
-| **auto-github-star** | 只在明确要求时手动 Star 仓库 | [README](skills/auto-github-star/README.md) |
-
-**亮点 `cf-browser-render`**：零依赖、一条命令、Windows 自动 UTF-8，适合公众号文章、
-JavaScript 渲染的 SPA、文档站和 GitHub 页面。
-
----
-
-## 四技能如何联动
-
-```mermaid
-flowchart LR
-    A[发现仓库 / 网页研究] --> CF[cf-browser-render]
-    A -->|用户明确要求| AS[auto-github-star]
-    AS --> GH[(GitHub Stars)]
-    GH --> SYNC[github-stars-sync]
-    SYNC -->|output/github_stars.json| TRACK[github-stars-version-tracker]
-    TRACK -->|GitHub Releases API| API[(Releases)]
-    API --> TRACK
-    TRACK -->|output/combined.json| REPORT[render_report.py]
-    REPORT -->|output/stars_report.md| OUT[报告 / 可选归档]
-    TRACK -.300 字摘要不够时.-> CF
-    CF -.抓 release 全文 / README.-> OUT
-```
-
-### 数据契约
-
-| 文件 | 生产者 | 消费者 | 内容 |
-|---|---|---|---|
-| `output/github_stars.json` | `github-stars-sync` / tracker 的 fetch | `github-stars-version-tracker` | Stars 全量列表，含 `full_name`、`stars`、`language`、`starred_at` |
-| `output/github_stars_latest.json` | `scan_all.py` | `check_versions.py` | 上次扫描的全部仓库最新 tag/date |
-| `output/combined.json` | `scan_all.py` | `render_report.py` / 人工 | 本次更新、分类、错误统计、是否完整 |
-| `output/stars_report.md` | `render_report.py` | 人 / 笔记库 | 按类别分组的 Markdown 报告 |
-
-### 组合场景
-
-| 组合 | 适合 |
-|---|---|
-| 只装 `cf-browser-render` | 纯网页研究、公众号/SPA 剪藏、零依赖 |
-| `cf-browser-render` + `github-stars-sync` | 研究仓库并建立个人 Stars 画像 |
-| `github-stars-sync` + `github-stars-version-tracker` | 只做版本监控 |
-| 四个全装 | 发现 → 手动 Star → 导出 → 版本扫描 → 抓全文深挖 |
-
-> `auto-github-star` **只手动触发**：不会因为消息里出现链接就自动 Star。
-> `cf-browser-render` 既可独立使用，也可为版本报告的 300 字 Release 摘要补全全文。
-
----
-
-## 快速开始：cf-browser-render 30 秒
-
-前置：Python 3.10+，以及 Cloudflare 账号。
-
-```bash
-git clone https://github.com/wJJh/llm-wiki-skills.git
-cd llm-wiki-skills
-cp .env.example .env
-# 编辑 .env：
-#   CF_BROWSER_RENDERING_TOKEN=...
-#   CF_ACCOUNT_ID=...
-python skills/cf-browser-render/scripts/fetch_markdown.py \
-  "https://example.com" -o article.md
-```
-
-> PowerShell 用户：把行尾的 `\` 换成反引号 `` ` ``，或把命令写成一行。
-
-> **国内网络提示**：访问 `api.cloudflare.com` 通常需要代理 IP；先在 `.env` 设置
-> `HTTPS_PROXY`，或加 `--proxy http://127.0.0.1:7890`，否则可能超时。
-
-Token 获取：Cloudflare Dashboard → My Profile → API Tokens，
-权限选 **Account > Browser Rendering > Edit**。完整步骤见
-[Cloudflare 凭据指南](docs/credentials/cloudflare-browser-rendering.md)。
-
-输出示例：
-
-```markdown
-# 文章标题
-
-正文内容...
-
-## 小标题
-
-- 列表项 1
-- 列表项 2
-```
-
----
-
-## 为什么单独装 cf-browser-render
-
-**它不是知识库专属工具。** 凡是“把网页变成 AI 能读的文本”的场景都能用：
-
-| 场景 | 能做什么 |
-|---|---|
-| **微信公众号文章** | 把公开可访问的文章转成干净 Markdown，方便总结、归档、二次创作 |
-| **GitHub 仓库主页** | README、Release、文档页转 Markdown，方便让 AI 对比仓库、写调研报告 |
-| **技术博客 / 官方文档** | 保留标题层级、列表、表格、代码块和链接 |
-| **SPA / JavaScript 页面** | 真实浏览器渲染，不是简单 HTTP 抓取 |
-| **批量剪藏** | 多个 URL 串行抓取，统一保存成 `.md` |
-| **AI 工作流** | 输出可直接喂给 RAG、知识库、代码助手、摘要/翻译流程 |
-
-### 为什么 Markdown 对 AI 友好
-
-- **结构保留**：标题、列表、表格、代码块、引用和链接都在
-- **噪声更少**：比 HTML 少掉大量标签、脚本、样式和内联属性，更省 context
-- **易切分**：按标题层级就能做 chunk，适合 RAG 和长文总结
-- **易溯源**：链接和代码块保留，方便回查原文
-- **易存储**：纯文本，Git、Obsidian、任何编辑器都能直接读
-
-### 按自己的场景微调
-
-四个技能都是 MIT，可以直接改，不用重新造轮子：
-
-- **触发词**：编辑 `skills/<name>/SKILL.md` 的 `description` / `whenToUse`
-- **输出方式**：`-o article.md` 保存单文件；多个 URL 串行；`--timeout` 调超时
-- **API 端点**：把 `/browser-rendering/markdown` 换成 `/screenshot`、`/pdf`、
-  `/content`、`/scrape` 等（进阶，需要改 `fetch_markdown.py`）
-- **后处理**：加 frontmatter、按网页标题生成文件名、清理导航栏、批量清单
-- **Stars 技能**：改 `CATEGORY_KEYWORDS`、排除词、批次大小、报告模板
-- **环境隔离**：用不同 `.env` + `--env-file` 区分工作/个人/测试场景
-
-> 不想改代码也可以：`--env-file` 指向不同配置，或在 `.env` 里切换代理和输出目录。
-> 详见 [cf-browser-render 技能说明](skills/cf-browser-render/README.md) 和
-> [Cloudflare 凭据指南](docs/credentials/cloudflare-browser-rendering.md)。
 
 ---
 
@@ -356,7 +398,7 @@ pnpm update dsh-llm-wiki-skills
 
 ---
 
-## 环境变量
+## 环境变量与凭据
 
 复制模板：
 

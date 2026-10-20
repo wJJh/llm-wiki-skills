@@ -1,20 +1,164 @@
 # LLM Wiki Skills
 
-**Four composable Agent Skills: render the web, star repos, export Stars, track releases.**
+> **Turn any web page into AI-friendly Markdown, and keep your GitHub Stars organized.**
+>
+> Four composable Agent Skills for Claude Code and DeepSeek Harness (DSH).
+> **Zero third-party Python dependencies**, individually installable, local `.env` only.
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 ![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-8A2BE2.svg)
 ![DSH](https://img.shields.io/badge/DSH-DeepSeek%20Harness-1f6feb.svg)
 
-Zero third-party Python dependencies. Works with Claude Code and DeepSeek Harness (DSH).
-Every skill can be installed **individually**. Configuration lives in a local `.env`;
-no global environment variables required.
-
 By 小妖刀 · GitHub [@wJJh](https://github.com/wJJh)
 
 [中文](README.md) · [License](LICENSE) · [.env template](.env.example) ·
 [Credential guides](docs/credentials/README.md)
+
+---
+
+## Quick start (30 seconds)
+
+Requirements: Python 3.10+ and a Cloudflare account.
+
+```bash
+git clone https://github.com/wJJh/llm-wiki-skills.git
+cd llm-wiki-skills
+cp .env.example .env
+# edit .env:
+#   CF_BROWSER_RENDERING_TOKEN=...
+#   CF_ACCOUNT_ID=...
+python skills/cf-browser-render/scripts/fetch_markdown.py \
+  "https://example.com" -o article.md
+```
+
+> PowerShell: replace the trailing `\` with a backtick, or put the command on one line.
+>
+> **Mainland China / restricted networks:** set `HTTPS_PROXY` in `.env` or add
+> `--proxy http://127.0.0.1:7890`; direct access to `api.cloudflare.com` may time out.
+
+Create a Cloudflare token at Dashboard → My Profile → API Tokens with
+**Account > Browser Rendering > Edit** permission. Full steps:
+[Cloudflare credential guide](docs/credentials/cloudflare-browser-rendering.md).
+
+---
+
+## Why it matters
+
+| What you get | Details |
+|---|---|
+| **Web → Markdown** | WeChat articles, GitHub repository pages, blogs, docs, and SPAs |
+| **Four composable skills** | Research → manual star → export Stars → release tracking → report |
+| **Zero dependencies** | Python 3.10+ standard library only; no `pip install` |
+| **Install just one** | `cf-browser-render` is a complete standalone tool |
+| **Local `.env`** | No global environment variables; credentials stay local |
+| **Claude Code + DSH** | The same `SKILL.md` works in both agents |
+
+> **Only need web-to-Markdown?** Install `cf-browser-render` alone; the other three are optional.
+
+---
+
+## Contents
+
+- [Quick start](#quick-start-30-seconds)
+- [Why install cf-browser-render on its own](#why-install-cf-browser-render-on-its-own)
+- [The four skills](#the-four-skills)
+- [How they work together](#how-they-work-together)
+- [Prerequisites](#prerequisites)
+- [Install](#install)
+- [Environment and credentials](#environment-and-credentials)
+- [Security](#security)
+- [Development](#development)
+- [License](#license)
+
+---
+
+## Why install cf-browser-render on its own
+
+**It is not a knowledge-base-only tool.** It fits any workflow that turns a web
+page into text an AI can read:
+
+| Use case | What it does |
+|---|---|
+| **WeChat articles** | Convert publicly accessible articles into clean Markdown for summaries and archives |
+| **GitHub repository pages** | Turn READMEs, releases, and docs into Markdown for AI comparison and research reports |
+| **Technical blogs / official docs** | Preserve headings, lists, tables, code blocks, and links |
+| **SPAs / JavaScript pages** | Rendered by a real browser, not a simple HTTP fetch |
+| **Batch clipping** | Fetch multiple URLs serially and save each as `.md` |
+| **AI pipelines** | Feed RAG, note systems, code assistants, summarizers, or translators |
+
+### Why Markdown is AI-friendly
+
+- Keeps structure: headings, lists, tables, code blocks, quotes, links
+- Removes HTML noise: far fewer tags, scripts, styles, and inline attributes
+- Easy to chunk by heading level for RAG and long-document summaries
+- Easy to trace: links and code blocks remain intact
+- Plain text: works with Git, Obsidian, and any editor
+
+### Customize it for your workflow
+
+All four skills are MIT-licensed and easy to adapt:
+
+- **Triggers**: edit `description` / `whenToUse` in `skills/<name>/SKILL.md`
+- **Output**: `-o article.md`, multiple URLs, `--timeout`
+- **API endpoint**: swap `/browser-rendering/markdown` for `/screenshot`, `/pdf`,
+  `/content`, or `/scrape` (advanced; edit `fetch_markdown.py`)
+- **Post-processing**: add frontmatter, derive filenames from page titles, strip
+  navigation chrome, build batch manifests
+- **Stars skills**: adjust `CATEGORY_KEYWORDS`, exclusions, batch size, report template
+- **Environment isolation**: use different `.env` files with `--env-file`
+
+> See the [cf-browser-render skill README](skills/cf-browser-render/README.md) and
+> the [Cloudflare credential guide](docs/credentials/cloudflare-browser-rendering.md).
+
+---
+
+## The four skills
+
+| Skill | What it does |
+|---|---|
+| **cf-browser-render** ⭐ | Render any web page into Markdown with Cloudflare Browser Rendering. Handles WeChat articles, SPAs, docs, and GitHub pages. |
+| **github-stars-sync** | Export starred repositories as JSON, Markdown, and language statistics. |
+| **github-stars-version-tracker** | Batch-check new releases across starred repos, filter by category, and generate a Markdown report. |
+| **auto-github-star** | Star repositories only when explicitly requested. |
+
+---
+
+## How they work together
+
+1. **cf-browser-render** turns pages, repos, and release notes into Markdown for research.
+2. **auto-github-star** adds repositories to Stars only when you explicitly ask.
+3. **github-stars-sync** exports everything to `output/github_stars.json`.
+4. **github-stars-version-tracker** compares releases, writes `output/combined.json`,
+   and renders `output/stars_report.md`.
+5. When a 300-character release summary is not enough, **cf-browser-render** fetches the full page.
+
+```mermaid
+flowchart LR
+    A[Discover repos / research] --> CF[cf-browser-render]
+    A -->|explicit request| AS[auto-github-star]
+    AS --> GH[(GitHub Stars)]
+    GH --> SYNC[github-stars-sync]
+    SYNC -->|output/github_stars.json| TRACK[github-stars-version-tracker]
+    TRACK --> API[(GitHub Releases)]
+    API --> TRACK
+    TRACK -->|output/combined.json| REPORT[render_report.py]
+    REPORT -->|output/stars_report.md| OUT[Report / optional archive]
+    TRACK -.summary is only 300 chars.-> CF
+```
+
+Data flow:
+
+1. `github-stars-sync` exports `output/github_stars.json`.
+2. `github-stars-version-tracker` compares releases against
+   `output/github_stars_latest.json` and writes `output/combined.json`.
+3. `render_report.py` produces `output/stars_report.md`.
+4. `cf-browser-render` can fetch the full release page when the 300-character
+   summary is not enough.
+5. `auto-github-star` is the manual intake step; it never runs automatically.
+
+Use only `cf-browser-render` for pure web research. Add the two Stars skills for
+version monitoring. Install all four for the full loop.
 
 ---
 
@@ -107,114 +251,6 @@ Expected: `Python 3.10.x` or newer.
 
 ---
 
-## The four skills
-
-| Skill | What it does |
-|---|---|
-| **cf-browser-render** ⭐ | Render any web page into Markdown with Cloudflare Browser Rendering. Handles WeChat articles, SPAs, docs, and GitHub pages. |
-| **github-stars-sync** | Export starred repositories as JSON, Markdown, and language statistics. |
-| **github-stars-version-tracker** | Batch-check new releases across starred repos, filter by category, and generate a Markdown report. |
-| **auto-github-star** | Star repositories only when explicitly requested. |
-
----
-
-## How they work together
-
-```mermaid
-flowchart LR
-    A[Discover repos / research] --> CF[cf-browser-render]
-    A -->|explicit request| AS[auto-github-star]
-    AS --> GH[(GitHub Stars)]
-    GH --> SYNC[github-stars-sync]
-    SYNC -->|output/github_stars.json| TRACK[github-stars-version-tracker]
-    TRACK --> API[(GitHub Releases)]
-    API --> TRACK
-    TRACK -->|output/combined.json| REPORT[render_report.py]
-    REPORT -->|output/stars_report.md| OUT[Report / optional archive]
-    TRACK -.summary is only 300 chars.-> CF
-```
-
-Data flow:
-
-1. `github-stars-sync` exports `output/github_stars.json`.
-2. `github-stars-version-tracker` compares releases against
-   `output/github_stars_latest.json` and writes `output/combined.json`.
-3. `render_report.py` produces `output/stars_report.md`.
-4. `cf-browser-render` can fetch the full release page when the 300-character
-   summary is not enough.
-5. `auto-github-star` is the manual intake step; it never runs automatically.
-
-Use only `cf-browser-render` for pure web research. Add the two Stars skills for
-version monitoring. Install all four for the full loop.
-
----
-
-## Quick start: cf-browser-render in 30 seconds
-
-Requirements: Python 3.10+ and a Cloudflare account.
-
-```bash
-git clone https://github.com/wJJh/llm-wiki-skills.git
-cd llm-wiki-skills
-cp .env.example .env
-# edit .env:
-#   CF_BROWSER_RENDERING_TOKEN=...
-#   CF_ACCOUNT_ID=...
-python skills/cf-browser-render/scripts/fetch_markdown.py \
-  "https://example.com" -o article.md
-```
-
-> PowerShell: replace the trailing `\` with a backtick, or put the command on one line.
-
-> **Mainland China / restricted networks:** set `HTTPS_PROXY` in `.env` or add
-> `--proxy http://127.0.0.1:7890`; direct access to `api.cloudflare.com` may time out.
-
-Create a Cloudflare token at Dashboard → My Profile → API Tokens with
-**Account > Browser Rendering > Edit** permission. Full steps:
-[Cloudflare credential guide](docs/credentials/cloudflare-browser-rendering.md).
-
----
-
-## Why install cf-browser-render on its own
-
-**It is not a knowledge-base-only tool.** It fits any workflow that turns a web
-page into text an AI can read:
-
-| Use case | What it does |
-|---|---|
-| **WeChat articles** | Convert publicly accessible articles into clean Markdown for summaries and archives |
-| **GitHub repository pages** | Turn READMEs, releases, and docs into Markdown for AI comparison and research reports |
-| **Technical blogs / official docs** | Preserve headings, lists, tables, code blocks, and links |
-| **SPAs / JavaScript pages** | Rendered by a real browser, not a simple HTTP fetch |
-| **Batch clipping** | Fetch multiple URLs serially and save each as `.md` |
-| **AI pipelines** | Feed RAG, note systems, code assistants, summarizers, or translators |
-
-### Why Markdown is AI-friendly
-
-- Keeps structure: headings, lists, tables, code blocks, quotes, links
-- Removes HTML noise: far fewer tags, scripts, styles, and inline attributes
-- Easy to chunk by heading level for RAG and long-document summaries
-- Easy to trace: links and code blocks remain intact
-- Plain text: works with Git, Obsidian, and any editor
-
-### Customize it for your workflow
-
-All four skills are MIT-licensed and easy to adapt:
-
-- **Triggers**: edit `description` / `whenToUse` in `skills/<name>/SKILL.md`
-- **Output**: `-o article.md`, multiple URLs, `--timeout`
-- **API endpoint**: swap `/browser-rendering/markdown` for `/screenshot`, `/pdf`,
-  `/content`, or `/scrape` (advanced; edit `fetch_markdown.py`)
-- **Post-processing**: add frontmatter, derive filenames from page titles, strip
-  navigation chrome, build batch manifests
-- **Stars skills**: adjust `CATEGORY_KEYWORDS`, exclusions, batch size, report template
-- **Environment isolation**: use different `.env` files with `--env-file`
-
-> See the [cf-browser-render skill README](skills/cf-browser-render/README.md) and
-> the [Cloudflare credential guide](docs/credentials/cloudflare-browser-rendering.md).
-
----
-
 ## Install
 
 ### Claude Code plugin marketplace
@@ -304,7 +340,7 @@ not available.
 
 ---
 
-## Environment variables
+## Environment and credentials
 
 ```bash
 cp .env.example .env
