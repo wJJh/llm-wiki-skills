@@ -1,0 +1,58 @@
+{
+  "scanned_at": "2026-10-20T00:00:00+00:00",
+  "total_stars": 4,
+  "filtered_count": 3,
+  "batches_total": 1,
+  "batches_completed": 1,
+  "updates_found": [
+    {
+      "full_name": "openai/whisper",
+      "stars": 72000,
+      "language": "Python",
+      "category": "AI/LLM",
+      "latest_tag": "v20240930",
+      "latest_date": "2026-10-01",
+      "latest_name": "Large-v3 turbo",
+      "previous_tag": "v20231117",
+      "previous_date": "2026-05-01",
+      "is_recent": true,
+      "is_new": false,
+      "body_preview": "Improved multilingual transcription and faster inference.",
+      "html_url": "https://github.com/openai/whisper/releases/tag/v20240930"
+    },
+    {
+      "full_name": "microsoft/playwright",
+      "stars": 68000,
+      "language": "TypeScript",
+      "category": "爬虫/逆向",
+      "latest_tag": "v1.55.0",
+      "latest_date": "2026-09-18",
+      "latest_name": "Browser automation improvements",
+      "previous_tag": "v1.54.0",
+      "previous_date": "2026-08-01",
+      "is_recent": true,
+      "is_new": false,
+      "body_preview": "New locator APIs and trace viewer updates.",
+      "html_url": "https://github.com/microsoft/playwright/releases/tag/v1.55.0"
+    },
+    {
+      "full_name": "paddlepaddle/PaddleOCR",
+      "stars": 46000,
+      "language": "Python",
+      "category": "OCR/文档",
+      "latest_tag": "v3.2.0",
+      "latest_date": "2026-06-10",
+      "latest_name": "PaddleOCR 3.2",
+      "previous_tag": "",
+      "previous_date": "",
+      "is_recent": false,
+      "is_new": true,
+      "body_preview": "New document parsing pipeline.",
+      "html_url": "https://github.com/paddlepaddle/PaddleOCR/releases/tag/v3.2.0"
+    }
+  ],
+  "recent_count": 2,
+  "errors": [],
+  "incomplete": false,
+  "stop_reason": ""
+}

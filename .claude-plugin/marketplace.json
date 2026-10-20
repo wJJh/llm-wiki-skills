@@ -1,0 +1,60 @@
+{
+  "name": "llm-wiki-skills",
+  "owner": {
+    "name": "小妖刀 (GitHub: wJJh)"
+  },
+  "metadata": {
+    "description": "四个可组合的 Agent Skills：网页转 Markdown、GitHub Stars 导出、版本追踪、手动 Star。",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "all-skills",
+      "description": "一次安装全部四个技能（cf-browser-render、github-stars-sync、github-stars-version-tracker、auto-github-star）。",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/cf-browser-render",
+        "./skills/github-stars-sync",
+        "./skills/github-stars-version-tracker",
+        "./skills/auto-github-star"
+      ]
+    },
+    {
+      "name": "cf-browser-render",
+      "description": "用 Cloudflare Browser Rendering 把任意网页渲染成 Markdown。",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/cf-browser-render"
+      ]
+    },
+    {
+      "name": "github-stars-sync",
+      "description": "导出 GitHub Stars 为 JSON / Markdown / 语言统计。",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/github-stars-sync"
+      ]
+    },
+    {
+      "name": "github-stars-version-tracker",
+      "description": "批量扫描 Star 仓库的新版本，分类过滤并生成 Markdown 报告。",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/github-stars-version-tracker"
+      ]
+    },
+    {
+      "name": "auto-github-star",
+      "description": "仅在明确要求时手动 Star GitHub 仓库。",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/auto-github-star"
+      ]
+    }
+  ]
+}

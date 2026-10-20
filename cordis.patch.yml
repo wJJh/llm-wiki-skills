@@ -1,0 +1,10 @@
+# DSH（DeepSeek Harness）合集补丁层
+#
+# package.json#dsh.bundle.patch 指向本文件。
+# `insert` 把合集插件行加入组合配置；加载后 index.js 会遍历 skills/ 注册全部技能。
+#
+# 安装后还需要把 "dsh-llm-wiki-skills" 加入
+# ~/.dsh/profiles/<profile>/package.json 的 dsh.profile.bundles 数组，并重启 DSH。
+- insert:
+    - id: llm-wiki-skills
+      name: dsh-llm-wiki-skills

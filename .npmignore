@@ -1,0 +1,23 @@
+# 运行缓存与本地配置绝不进入 npm 包
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+.ruff_cache/
+**/.env
+**/.env.*
+!**/.env.example
+
+# 运行产物
+/output/
+**/github_stars*.json
+**/github_stars*.md
+/combined.json
+/stars_report.md
+/batch_*.json
+**/*.log
+stars_scan_*/
+
+# 仓库级开发/CI 文件（注意：不要写成 scripts/，否则会连技能脚本一起排除）
+/.github/
+/evals/
+/scripts/

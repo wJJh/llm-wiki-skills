@@ -1,0 +1,42 @@
+{
+  "skill_name": "github-stars-version-tracker",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "检查我的 GitHub Stars 仓库最近有没有版本更新，只看一个小批次试一下",
+      "expected_output": "运行 check_versions.py 或 scan_all.py，分批次扫描 Stars 仓库的 Releases，输出有更新的仓库列表，并按日期排序。",
+      "files": [],
+      "expectations": [
+        "调用了 check_versions.py 或 scan_all.py",
+        "输出中包含 updates_found 列表",
+        "按 latest_date 倒序排列",
+        "正确识别了仓库分类（category 字段）",
+        "遇到限流/网络错误时标记 incomplete，而不是当作 no_release"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "扫描完 Stars 版本更新后，生成一份 Markdown 报告",
+      "expected_output": "读取 combined.json，调用 render_report.py 生成 stars_report.md，按分类分组并包含仓库链接、版本、发布日期和摘要。",
+      "files": [],
+      "expectations": [
+        "读取了 combined.json 或等价扫描结果",
+        "调用了 render_report.py",
+        "生成了 Markdown 报告",
+        "报告按 category 分组",
+        "没有假设固定的 Obsidian 或 wiki 目录"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "看看 microsoft/playwright 和 openai/whisper 这两个仓库有没有新版本发布",
+      "expected_output": "调用 GitHub Releases API 查询两个仓库的最新 release，输出最新版本号和发布日期。",
+      "files": [],
+      "expectations": [
+        "调用了 GitHub Releases API",
+        "输出了最新版本号和发布日期",
+        "如果提供了上次快照，则进行了版本对比"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "name": "dsh-llm-wiki-skills",
+  "version": "1.0.0",
+  "description": "四个可组合的 Agent Skills：cf-browser-render（网页转 Markdown）、github-stars-sync（Stars 导出）、github-stars-version-tracker（版本追踪）、auto-github-star（手动 Star）。零第三方 Python 依赖，支持 Claude Code 与 DSH。",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "cordis.patch.yml",
+    "skills",
+    "docs",
+    "README.md",
+    "README.en.md",
+    "LICENSE",
+    ".env.example"
+  ],
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "agent-skills",
+    "claude-code",
+    "cloudflare-browser-rendering",
+    "web-to-markdown",
+    "github-stars",
+    "release-tracker",
+    "web-scraping",
+    "markdown"
+  ],
+  "author": "小妖刀 (GitHub: wJJh)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wJJh/llm-wiki-skills.git"
+  },
+  "homepage": "https://github.com/wJJh/llm-wiki-skills",
+  "bugs": {
+    "url": "https://github.com/wJJh/llm-wiki-skills/issues"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh": ">=0.2.0-rc.1"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/dsh": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}

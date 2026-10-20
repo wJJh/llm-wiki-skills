@@ -1,0 +1,36 @@
+# ===== 敏感信息：真实 .env 绝不入库 =====
+.env
+.env.*
+!.env.example
+
+# ===== 运行产物 =====
+output/
+stars_scan_*/
+github_stars*.json
+github_stars*.md
+/combined.json
+/stars_report.md
+/batch_*.json
+*.log
+logs/
+
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.ruff_cache/
+
+# ===== Node =====
+node_modules/
+
+# ===== 编辑器 / 系统 =====
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# ===== 其他 =====
+*.bak

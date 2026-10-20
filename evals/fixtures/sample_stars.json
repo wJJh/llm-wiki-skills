@@ -1,0 +1,46 @@
+[
+  {
+    "full_name": "openai/whisper",
+    "name": "openai/whisper",
+    "url": "https://github.com/openai/whisper",
+    "description": "Robust Speech Recognition via Large-Scale Weak Supervision",
+    "stars": 72000,
+    "language": "Python",
+    "starred_at": "2026-09-01T10:00:00Z",
+    "owner": "openai",
+    "topics": ["speech", "ai"]
+  },
+  {
+    "full_name": "microsoft/playwright",
+    "name": "microsoft/playwright",
+    "url": "https://github.com/microsoft/playwright",
+    "description": "Playwright is a framework for Web Testing and Automation",
+    "stars": 68000,
+    "language": "TypeScript",
+    "starred_at": "2026-08-12T10:00:00Z",
+    "owner": "microsoft",
+    "topics": ["browser", "automation"]
+  },
+  {
+    "full_name": "paddlepaddle/PaddleOCR",
+    "name": "paddlepaddle/PaddleOCR",
+    "url": "https://github.com/paddlepaddle/PaddleOCR",
+    "description": "Awesome multilingual OCR toolkits based on PaddlePaddle",
+    "stars": 46000,
+    "language": "Python",
+    "starred_at": "2026-07-20T10:00:00Z",
+    "owner": "paddlepaddle",
+    "topics": ["ocr", "document"]
+  },
+  {
+    "full_name": "example/frontend-app",
+    "name": "example/frontend-app",
+    "url": "https://github.com/example/frontend-app",
+    "description": "A frontend template website",
+    "stars": 1200,
+    "language": "Vue",
+    "starred_at": "2026-06-01T10:00:00Z",
+    "owner": "example",
+    "topics": ["frontend"]
+  }
+]
